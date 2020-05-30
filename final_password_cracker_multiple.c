@@ -38,9 +38,9 @@ int main(void) {
 
     long int attempts = 0;
 
-    // pre brute force algorithm 
+    // pre brute force algorithm
     // txt file from https://github.com/danielmiessler/SecLists/tree/master/Passwords/Common-Credentials
-    char file_pass[MAX_CHARS]; 
+    char file_pass[MAX_CHARS];
     FILE *fp;
     int password_found = 0;
     int len;
@@ -59,11 +59,11 @@ int main(void) {
     // struct password_details pass_list[] = {pass1, pass2, pass3};
 
     while (fgets(file_pass, MAX_CHARS, fp) != NULL) {
-        pre_bruteforce_attempts++; 
+        pre_bruteforce_attempts++;
         len = strlen(file_pass);
         if (len > 0 && file_pass[len - 1] == '\n') file_pass[len-1] = '\0';
-        
-        for (int curr = 0; curr <= size; curr++) {
+
+        for (int curr = 0; curr < size; curr++) {
             if (pass_list[curr].nbf_cracked != 1) {
                 if (strcmp(pass_list[curr].pass, file_pass) == 0) {
                     end = clock();
@@ -79,10 +79,10 @@ int main(void) {
         }
         if (PRE_BRUTEFORCE_CRACKED == size) break;
     }
+
     fclose(fp);
 
-
-    for (int curr = 0; curr <= size; curr++) {
+    for (int curr = 0; curr < size; curr++) {
         if (pass_list[curr].nbf_cracked == 1) {
             printf("password %d took %ld attempts\n", pass_list[curr].identifier, pass_list[curr].attempts);
             printf("took %f seconds to compute\n", pass_list[curr].time_taken);
@@ -103,7 +103,7 @@ int main(void) {
     }
 
     if (PRE_BRUTEFORCE_CRACKED == size) return 0;
- 
+
     printf("Entering brute force algorithm\n");
 
     char password_guesser[MAX_CHARS]; // assuming someones password cannot be greater
@@ -118,7 +118,7 @@ int main(void) {
     int x = 0;
 
     while (1) {
-        for (int curr = 0; curr <= size; curr++) {
+        for (int curr = 0; curr < size; curr++) {
             if (strcmp(pass_list[curr].pass, password_guesser) == 0) {
                 if (pass_list[curr].bf_cracked != 1 && pass_list[curr].nbf_cracked != 1) {
                     printf("password %d found\n", pass_list[curr].identifier);
@@ -129,9 +129,9 @@ int main(void) {
                     pass_list[curr].attempts = attempts;
                     PASSWORDS_CRACKED++;
                     printf("Password %d took %ld attempts\n", pass_list[curr].identifier, pass_list[curr].attempts);
-                    printf("Took %f seconds to compute\n", pass_list[curr].time_taken);
+                    printf("Password $d took %f seconds to compute\n\n", pass_list[curr].identifier, pass_list[curr].time_taken);
                 }
-            } 
+            }
         }
 
         if (PASSWORDS_CRACKED == size) {
@@ -141,7 +141,7 @@ int main(void) {
 
         if (password_guesser[curr_array_elem] == '9') {
             password_guesser[curr_array_elem] = 'A';
-            if (curr_array_elem > 0) { // resetting 
+            if (curr_array_elem > 0) { // resetting
                 for (m = 0; m < curr_array_elem; m++) {
                     password_guesser[m] = '0';
                 }
@@ -149,7 +149,7 @@ int main(void) {
             curr_array_elem = 0;
         } else if (password_guesser[curr_array_elem] == 'Z') {
             password_guesser[curr_array_elem] = 'a';
-            if (curr_array_elem > 0) { // resetting 
+            if (curr_array_elem > 0) { // resetting
                 for (m = 0; m < curr_array_elem; m++) {
                     password_guesser[m] = '0';
                 }
@@ -172,16 +172,18 @@ int main(void) {
             }
         } else {
             password_guesser[curr_array_elem]++;
-            if (curr_array_elem > 0) { // resetting 
+            if (curr_array_elem > 0) { // resetting
                 for (m = 0; m < curr_array_elem; m++) {
                     password_guesser[m] = '0';
                 }
             curr_array_elem = 0;
             }
         }
-        
+
         attempts++;
-    }    
-    
+    }
+
+    printf("Finished\n");
+
     return 0;
 }
