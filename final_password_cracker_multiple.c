@@ -17,30 +17,24 @@ struct password_details {
 int main(void) {
 
     int PASSWORDS_CRACKED = 0;
+    int PRE_BRUTEFORCE_CRACKED = 0;
+    int size;
 
-    struct password_details pass1, pass2, pass3;
+    printf("How many passwords would you like to test?\n");
+    scanf("%d", &size);
 
-    printf("Please enter 3 passwords\n");
-    
-    scanf("%s", pass1.pass);
-    scanf("%s", pass2.pass);
-    scanf("%s", pass3.pass);
-    
-    pass1.attempts = 0;
-    pass2.attempts = 0;
-    pass3.attempts = 0;
+    printf("Please enter %d passwords\n", size);
 
-    pass1.bf_cracked = 0; 
-    pass2.bf_cracked = 0; 
-    pass3.bf_cracked = 0;
-
-    pass1.nbf_cracked = 0;
-    pass2.nbf_cracked = 0;
-    pass3.nbf_cracked = 0;
-
-    pass1.identifier = 1; 
-    pass2.identifier = 2; 
-    pass3.identifier = 3;
+    struct password_details pass_list[size];
+    for (int i = 0; i < size; i++) {
+        struct password_details curr_pass;
+        scanf("%s", curr_pass.pass);
+        curr_pass.attempts = 0;
+        curr_pass.bf_cracked = 0;
+        curr_pass.nbf_cracked = 0;
+        curr_pass.identifier = i + 1;
+        pass_list[i] = curr_pass;
+    }
 
     long int attempts = 0;
 
@@ -62,14 +56,14 @@ int main(void) {
     double time_taken;
     start = clock();
 
-    struct password_details pass_list[] = {pass1, pass2, pass3};
+    // struct password_details pass_list[] = {pass1, pass2, pass3};
 
     while (fgets(file_pass, MAX_CHARS, fp) != NULL) {
         pre_bruteforce_attempts++; 
         len = strlen(file_pass);
         if (len > 0 && file_pass[len - 1] == '\n') file_pass[len-1] = '\0';
         
-        for (int curr = 0; curr <= 2; curr++) {
+        for (int curr = 0; curr <= size; curr++) {
             if (pass_list[curr].nbf_cracked != 1) {
                 if (strcmp(pass_list[curr].pass, file_pass) == 0) {
                     end = clock();
@@ -79,15 +73,16 @@ int main(void) {
                     pass_list[curr].nbf_cracked = 1;
                     pass_list[curr].attempts = pre_bruteforce_attempts;
                     PASSWORDS_CRACKED++;
+                    PRE_BRUTEFORCE_CRACKED++;
                 }
             }
         }
-        if (pass_list[0].nbf_cracked == 1 && pass_list[1].nbf_cracked == 1 && pass_list[2].nbf_cracked == 1) break;
+        if (PRE_BRUTEFORCE_CRACKED == size) break;
     }
     fclose(fp);
 
 
-    for (int curr = 0; curr <= 2; curr++) {
+    for (int curr = 0; curr <= size; curr++) {
         if (pass_list[curr].nbf_cracked == 1) {
             printf("password %d took %ld attempts\n", pass_list[curr].identifier, pass_list[curr].attempts);
             printf("took %f seconds to compute\n", pass_list[curr].time_taken);
@@ -104,19 +99,10 @@ int main(void) {
             } else {
                 printf("Your password is in the top 1000000 most popular passwords!\n");
             }
-
-            printf("Horrible password! If hacker has access to the top 1 ");
-            printf("million most common passwords, your password will be cracked ");
-            printf("in under 0.1 seconds! Please do not use names or common ");
-            printf("words/phrases and use a random but easy to remember ");
-            printf("combinations of upper/lowercase letters and numbers ");
-            printf("that are at at least 8 characters long. This type of ");
-            printf("password should take 1 hour to crack.");
-            printf("\n\n");
         }
     }
 
-    if (pass_list[0].nbf_cracked == 1 && pass_list[1].nbf_cracked == 1 && pass_list[2].nbf_cracked == 1) return 0;
+    if (PRE_BRUTEFORCE_CRACKED == size) return 0;
  
     printf("Entering brute force algorithm\n");
 
@@ -132,13 +118,7 @@ int main(void) {
     int x = 0;
 
     while (1) {
-/*
-        for (j = 0; j < curr_length; j++) {
-            printf("%c", password_guesser[j]);
-        }
-        printf("\n");
-*/
-        for (int curr = 0; curr <= 2; curr++) {
+        for (int curr = 0; curr <= size; curr++) {
             if (strcmp(pass_list[curr].pass, password_guesser) == 0) {
                 if (pass_list[curr].bf_cracked != 1 && pass_list[curr].nbf_cracked != 1) {
                     printf("password %d found\n", pass_list[curr].identifier);
@@ -152,17 +132,10 @@ int main(void) {
             } 
         }
 
-        if (PASSWORDS_CRACKED == 3) {
+        if (PASSWORDS_CRACKED == size) {
             printf("All passwords found\n");
             break;
         }
-
-/*
-        if ((pass1.nbf_cracked == 1 || pass1.bf_cracked == 1) && (pass2.nbf_cracked == 1 || pass2.bf_cracked == 1) && (pass3.nbf_cracked == 1 || pass3.bf_cracked == 1)) {
-            printf("all passwords found\n");
-            break;
-        }
-*/
 
         if (password_guesser[curr_array_elem] == '9') {
             password_guesser[curr_array_elem] = 'A';
@@ -208,42 +181,10 @@ int main(void) {
         attempts++;
     }    
 
-    for (int curr = 0; curr <= 2; curr++) {
+    for (int curr = 0; curr <= size; curr++) {
         if (pass_list[curr].bf_cracked == 1) {
             printf("Password %d took %ld attempts\n", pass_list[curr].identifier, pass_list[curr].attempts);
             printf("Took %f seconds to compute\n", pass_list[curr].time_taken);
-            if (pass_list[curr].time_taken < 1) {
-                printf("Horrible password! Although your password is not part of the top 1 ");
-                printf("million most common passwords, it still took less than ");
-                printf("1 second to crack\n");
-                int len;
-                for (len = 0; pass_list[curr].pass[len] != '\0'; len++);
-                if (len <= 4) {
-                    printf("Password is less than 5 characters long!");
-                } else {
-                    printf("Password is less than 6 characters long!");
-                }
-                printf("Please lengthen it to at least 8 characters ");
-                printf("and ensure you use a combination of upper/lowercase ");
-                printf("characters and numbers. Such as password should take ");
-                printf("At least 1 hour to crack.");
-                printf("\n\n");
-            } else if (pass_list[curr].time_taken >= 1 && pass_list[curr].time_taken < 20) {
-                printf("Very Poor password! Although your password is not part of the top 1 ");
-                printf("million most common passwords, it still took less than ");
-                printf("20 seconds to crack\n");
-                int len;
-                for (len = 0; pass_list[curr].pass[len] != '\0'; len++);
-                if (len <= 5) {
-                    printf("Password is less than 6 characters long!");
-                    printf("Please lengthen it to at least 8 characters ");
-                    printf("and ensure you use a combination of upper/lowercase ");
-                    printf("characters and numbers. Such as password should take ");
-                    printf("At least 1 hour to crack.");
-                    printf("\n\n");
-                }
-            }
-
         }
     }
 
