@@ -128,6 +128,8 @@ int main(void) {
                     pass_list[curr].bf_cracked = 1;
                     pass_list[curr].attempts = attempts;
                     PASSWORDS_CRACKED++;
+                    printf("Password %d took %ld attempts\n", pass_list[curr].identifier, pass_list[curr].attempts);
+                    printf("Took %f seconds to compute\n", pass_list[curr].time_taken);
                 }
             } 
         }
@@ -180,13 +182,6 @@ int main(void) {
         
         attempts++;
     }    
-
-    for (int curr = 0; curr <= size; curr++) {
-        if (pass_list[curr].bf_cracked == 1) {
-            printf("Password %d took %ld attempts\n", pass_list[curr].identifier, pass_list[curr].attempts);
-            printf("Took %f seconds to compute\n", pass_list[curr].time_taken);
-        }
-    }
-
+    
     return 0;
 }
